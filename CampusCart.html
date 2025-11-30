@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CampusCart — EMBREX</title>
+  <meta name="description" content="CampusCart — student resell marketplace. Built by EMBREX." />
+  <style>
+    /* ----------------------
+       Brand palette
+       ---------------------- */
+    :root{
+      --cream:#FCFBF8; /* cream white background */
+      --blue:#007AFF; /* electric blue */
+      --orange:#FF9500; /* vibrant orange */
+      --muted:#8b8b8b;
+
+      --radius:14px;
+      --glass: rgba(255,255,255,0.7);
+      --card-shadow: 0 8px 30px rgba(10,10,10,0.08);
+      --accent-grad: linear-gradient(135deg,var(--blue),var(--orange));
+
+      --max-width:1100px;
+    }
+
+    /* Dark theme vars (controlled by .dark on html) */
+    html.dark{
+      --cream:#0b0b0b;
+      --glass: rgba(255,255,255,0.03);
+      --card-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      color-scheme: dark;
+    }
+
+    /* ----------------------
+       Reset + base
+       ---------------------- */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background:var(--cream);
+      color:#111;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:20px;
+      display:flex;
+      justify-content:center;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:var(--max-width);
+    }
+
+    header{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+
+    /* Logo */
+    .logo{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      text-decoration:none;
+      color:inherit;
+    }
+
+    .logo-mark{
+      width:70px;height:70px;border-radius:12px;display:grid;place-items:center;
+      background:var(--glass);box-shadow:var(--card-shadow);
+      padding:10px;
+    }
+
+    .logo-text{font-weight:700;font-size:18px;}
+    .logo-text .campus{color:var(--blue)}
+    .logo-text .cart{color:var(--orange)}
+
+    /* Search + actions */
+    .actions{display:flex;gap:10px;align-items:center}
+
+    .search{display:flex;align-items:center;gap:8px;background:var(--glass);padding:8px 12px;border-radius:12px;box-shadow:var(--card-shadow);min-width:180px}
+    .search input{border:0;background:transparent;outline:0;font-size:14px}
+
+    .btn{
+      border:0;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600;display:inline-flex;gap:8px;align-items:center;
+      transition:transform .22s ease,box-shadow .22s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+
+    .btn-primary{background:var(--blue);color:white;box-shadow:0 6px 18px rgba(0,122,255,0.18)}
+    .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.06)}
+
+    /* Main layout */
+    main{display:grid;grid-template-columns:1fr;gap:18px}
+
+    .hero{
+      display:flex;gap:18px;align-items:center;justify-content:space-between;padding:18px;border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.5));box-shadow:var(--card-shadow);
+    }
+
+    html.dark .hero{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))}
+
+    .hero .left{max-width:560px}
+    .hero h1{margin:0;font-size:26px}
+    .hero p{color:var(--muted);margin-top:8px}
+
+    .hero-cta{display:flex;gap:8px;margin-top:12px}
+
+    /* categories row */
+    .cats{display:flex;gap:12px;overflow:auto;padding-bottom:6px}
+    .cat{min-width:120px;border-radius:12px;padding:10px;background:var(--glass);display:flex;flex-direction:column;gap:8px;align-items:flex-start;box-shadow:var(--card-shadow)}
+    .cat h4{margin:0}
+
+    /* product grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+
+    .card{background:var(--glass);padding:12px;border-radius:12px;box-shadow:var(--card-shadow);display:flex;flex-direction:column;gap:10px;transition:transform .28s cubic-bezier(.2,.9,.3,1),box-shadow .28s}
+    .card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(10,10,10,0.12)}
+
+    .card img{width:100%;height:140px;object-fit:cover;border-radius:10px}
+    .card h3{margin:0;font-size:15px}
+    .specs{color:var(--muted);font-size:13px}
+
+    .price{font-weight:800}
+
+    .place-btn{background:var(--accent-grad);color:white;border-radius:10px;padding:8px;border:0;cursor:pointer;font-weight:700}
+
+    /* product modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.open{display:flex}
+    .modal-panel{width:100%;max-width:920px;background:var(--cream);border-radius:16px;padding:18px;box-shadow:0 30px 60px rgba(10,10,10,0.35);}
+    html.dark .modal-panel{background:#0f0f12}
+
+    .modal-body{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .modal-body img{width:100%;height:320px;object-fit:cover;border-radius:12px}
+
+    .order-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .input,select{padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);width:100%;outline:0}
+
+    /* admin styles */
+    .admin-panel{display:none}
+    .admin-panel.open{display:block;padding:12px;background:var(--glass);border-radius:12px}
+    .orders{display:flex;flex-direction:column;gap:8px}
+    .order{background:rgba(255,255,255,0.06);padding:10px;border-radius:8px}
+
+    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* icons */
+    .icon{width:20px;height:20px;display:inline-block}
+
+    /* responsive */
+    @media (max-width:780px){
+      .modal-body{grid-template-columns:1fr}
+      .card img{height:120px}
+      .hero{flex-direction:column;align-items:flex-start}
+    }
+
+    /* subtle animated background for hero */
+    .hero-bg{position:absolute;opacity:0.06;pointer-events:none;filter:blur(40px);width:420px;height:180px;border-radius:40px;background:var(--accent-grad);transform:translateY(-20px)}
+
+    /* tiny micro-interactions */
+    .fade-in{animation:fade .5s ease both}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="logo" href="#">
+      <div class="logo-mark">
+      <img src="Cart.png" alt="CampusCart Logo" style="width:100%; height:100%; object-fit:contain;"> </div>
+      <div class="logo-text"><span class="campus">Campus</span><span class="cart">Cart</span></div>
+      </a>
+
+      <div class="actions">
+        <div class="search">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M21 21l-4.35-4.35"/><circle cx="11" cy="11" r="5" fill="currentColor"/></svg>
+          <input id="searchInput" placeholder="Search products..." />
+        </div>
+
+        <button id="themeToggle" class="btn btn-ghost" title="Toggle theme">
+          <!-- Sun / Moon icon only, no text -->
+          <span id="themeIcon">🌞</span>
+        </button>
+
+        <button id="loginBtn" class="btn btn-primary">Log in</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="left">
+          <h1>CampusCart — student marketplace</h1>
+          <p>Grab earbuds, headphones, and refurbished laptops with free campus delivery. Fast, mobile-first, and built for students by EMBREX.</p>
+
+          <div class="hero-cta">
+            <button class="btn btn-primary" id="browseBtn">Browse Products</button>
+            <button class="btn btn-ghost" id="howItWorks">How it works</button>
+          </div>
+        </div>
+
+        <div style="position:relative">
+          <div class="hero-bg"></div>
+          <div style="width:280px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,255,255,0.3));padding:12px;box-shadow:var(--card-shadow)">
+            <div style="font-weight:800">Free campus delivery</div>
+            <div style="color:var(--muted);font-size:14px">Off-campus delivery BWP10</div>
+            <div style="margin-top:8px"><button class="btn" id="contactBtn">Contact</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h3 style="margin:0">Products</h3>
+          <div style="color:var(--muted);font-size:13px">Showing <span id="count">0</span> items</div>
+        </div>
+
+        <div class="cats" id="categories"></div>
+
+        <div class="grid" id="productGrid"></div>
+      </section>
+
+      <!-- modal -->
+      <div class="modal" id="productModal">
+        <div class="modal-panel">
+          <button id="closeModal" class="btn" style="float:right">Close</button>
+          <div class="modal-body">
+            <div>
+              <img id="modalImg" src="#" alt="product" />
+            </div>
+            <div>
+              <h2 id="modalTitle"></h2>
+              <div class="specs" id="modalSpecs"></div>
+              <div style="margin-top:10px;font-size:18px" class="price" id="modalPrice"></div>
+
+              <div style="margin-top:12px">
+                <label>Phone (for contact)</label>
+                <input id="orderPhone" class="input" placeholder="+26770000000" />
+              </div>
+
+              <div style="margin-top:8px">
+                <label>Location</label>
+                <select id="orderLocation" class="input">
+                  <option value="oncampus">On campus — Free</option>
+                  <option value="offcampus">Off campus — BWP10</option>
+                </select>
+              </div>
+
+              <div class="order-row">
+                <button id="placeOrderBtn" class="place-btn">Place order</button>
+                <button id="saveCartBtn" class="btn">Save to cart</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- admin panel (hidden unless you open #admin) -->
+      <div id="adminArea"></div>
+
+      <footer>
+        <div>Built by EMBREX · Contact: <a id="emailLink" href="mailto:montibatseaubrey@gmail.com">montibatseaubrey@gmail.com</a> · Phone: +267 753 96601</div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    /***********************
+      Configuration — change only here if required
+    ************************/
+    const CONFIG = {
+      whatsAppNumber: '+26775396601',
+      adminUser: 'montibatseaubrey',
+      adminPass: 'Monty@123',
+      emailPlaceholder: 'youremail@example.com',
+      currency: 'BWP',
+      offCampusFee: 10
+    };
+
+    // Product catalogue (image files should exist in /images/ folder matching the slug name)
+    const PRODUCTS = [
+      // earbud examples (15)
+      {id:'eb1',category:'Earbuds',title:'AirBeats Mini',price:299,tags:['bluetooth','TWS'],img:'images/airbeats-mini.jpg',specs:['Bluetooth 5.2','Battery 24h','IPX5 Waterproof']},
+      {id:'eb2',category:'Earbuds',title:'NeoPods Z',price:349,img:'images/neopods-z.jpg',specs:['Bluetooth 5.3','Battery 36h','Touch Controls']},
+      {id:'eb3',category:'Earbuds',title:'PulseTwins',price:259,img:'images/pulsetwins.jpg',specs:['Low Latency','Microphone','Comfort Fit']},
+      {id:'eb4',category:'Earbuds',title:'CloudEar S',price:399,img:'images/cloudear-s.jpg',specs:['ANC','Wireless Charging','45ms Latency']},
+      {id:'eb5',category:'Earbuds',title:'Fuze Pods',price:189,img:'images/fuze-pods.jpg',specs:['Compact','Stable Fit','18h Battery']},
+      {id:'eb6',category:'Earbuds',title:'EchoDots Go',price:219,img:'images/echodots-go.jpg',specs:['Voice Assistant','USB-C','IPX4']},
+      {id:'eb7',category:'Earbuds',title:'BeatCurve',price:279,img:'images/beatcurve.jpg',specs:['Bass Boost','Fast Charge','Mono Mode']},
+      {id:'eb8',category:'Earbuds',title:'SonicLeaf',price:189,img:'images/sonicleaf.jpg',specs:['Natural Sound','Lightweight','16h Battery']},
+      {id:'eb9',category:'Earbuds',title:'VoltPods',price:219,img:'images/voltpods.jpg',specs:['Quick Pair','Robust Case','Waterproof']},
+      {id:'eb10',category:'Earbuds',title:'VectorBuds',price:329,img:'images/vectorbuds.jpg',specs:['Hi-Res Audio','Noise Reduction','24h']},
+      {id:'eb11',category:'Earbuds',title:'MiniBeats S',price:179,img:'images/minibeats-s.jpg',specs:['Lightweight','Reliable','Comfort Fit']},
+      {id:'eb12',category:'Earbuds',title:'GroovePods L',price:249,img:'images/groovepods-l.jpg',specs:['Powerful Bass','Long Life','Ergonomic']},
+      {id:'eb13',category:'Earbuds',title:'ClearTone',price:309,img:'images/cleartone.jpg',specs:['Clear Calls','Adaptive EQ','Noise Cancel']},
+      {id:'eb14',category:'Earbuds',title:'WaveMini',price:169,img:'images/wavemini.jpg',specs:['Budget Friendly','Light','USB-C']},
+      {id:'eb15',category:'Earbuds',title:'AlphaPods',price:399,img:'images/alphapods.jpg',specs:['Premium','ANC','Wireless Charging']},
+
+      // headphones (10)
+      {id:'hp1',category:'Headphones',title:'StudioX Pro',price:699,img:'images/studiox-pro.jpg',specs:['Over-ear','ANC','Bluetooth 5.2']},
+      {id:'hp2',category:'Headphones',title:'BassKing 500',price:549,img:'images/bassking-500.jpg',specs:['Heavy Bass','Comfort','Long Battery']},
+      {id:'hp3',category:'Headphones',title:'CloudComfort',price:429,img:'images/cloudcomfort.jpg',specs:['Soft Cushions','Light','Hi-Res']},
+      {id:'hp4',category:'Headphones',title:'UrbanTune',price:359,img:'images/urbantune.jpg',specs:['Foldable','Mic','Durable']},
+      {id:'hp5',category:'Headphones',title:'WaveMaster',price:489,img:'images/wavemaster.jpg',specs:['Studio Sound','EQ','Noise Cancelling']},
+      {id:'hp6',category:'Headphones',title:'NeoSound Over',price:399,img:'images/neosound-over.jpg',specs:['Bluetooth','Comfort Fit','USB-C']},
+      {id:'hp7',category:'Headphones',title:'RetroBeats',price:299,img:'images/retrobeats.jpg',specs:['Vintage Look','Balanced Audio','Aux']},
+      {id:'hp8',category:'Headphones',title:'FlexPods',price:339,img:'images/flexpods.jpg',specs:['Flexible','Lightweight','Long Playtime']},
+      {id:'hp9',category:'Headphones',title:'ProX Studio',price:779,img:'images/prox-studio.jpg',specs:['Professional','High Fidelity','Comfort']},
+      {id:'hp10',category:'Headphones',title:'QuietField',price:649,img:'images/quietfield.jpg',specs:['Advanced ANC','Long Battery','Premium']},
+
+      // refurbished laptops (3)
+      {id:'pc1',category:'Laptops',title:'Lenovo ThinkPad LNV-1',price:2499,img:'images/lenovo-lnv1.jpg',specs:['Intel i5 8th Gen','8GB RAM','256GB SSD','Refurbished']},
+      {id:'pc2',category:'Laptops',title:'HP EliteBook HP-1',price:2199,img:'images/hp-1.jpg',specs:['Intel i5','8GB RAM','500GB HDD','Refurbished']},
+      {id:'pc3',category:'Laptops',title:'HP Pavilion HP-2',price:1999,img:'images/hp-2.jpeg',specs:['Intel i3','4GB RAM','128GB SSD','Refurbished']}
+    ];
+
+    // ---------- state ----------
+    let filtered = PRODUCTS.slice();
+
+    // DOM refs
+    const grid = document.getElementById('productGrid');
+    const countEl = document.getElementById('count');
+    const categoriesEl = document.getElementById('categories');
+    const searchInput = document.getElementById('searchInput');
+    const modal = document.getElementById('productModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSpecs = document.getElementById('modalSpecs');
+    const modalPrice = document.getElementById('modalPrice');
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    const orderPhone = document.getElementById('orderPhone');
+    const orderLocation = document.getElementById('orderLocation');
+
+    // theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    // login
+    const loginBtn = document.getElementById('loginBtn');
+
+    // utilities
+    function money(n){return `${CONFIG.currency} ${n}`}
+
+    // initial render
+    function renderCategories(){
+      const cats = ['All',...new Set(PRODUCTS.map(p=>p.category))];
+      categoriesEl.innerHTML = '';
+      cats.forEach(c=>{
+        const el = document.createElement('div'); el.className='cat fade-in';
+        el.innerHTML = `<h4>${c}</h4><div style="color:var(--muted);font-size:12px">${PRODUCTS.filter(p=>p.category===c||c==='All').length} items</div>`;
+        el.addEventListener('click',()=>{ if(c==='All') filtered = PRODUCTS.slice(); else filtered = PRODUCTS.filter(p=>p.category===c); renderGrid(); });
+        categoriesEl.appendChild(el);
+      })
+    }
+
+    function renderGrid(){
+      grid.innerHTML='';
+      countEl.textContent = filtered.length;
+      filtered.forEach(p=>{
+        const c = document.createElement('div'); c.className='card fade-in';
+        c.innerHTML = `
+          <img src="${p.img}" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'100%\' height=\'100%\' fill=\'%23efefef\' /><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23888888\' font-size=\'18\'>Image missing</text></svg>'" />
+          <h3>${p.title}</h3>
+          <div class="specs">${p.specs.slice(0,2).join(' · ')}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="price">${money(p.price)}</div>
+            <button class="place-btn" data-id="${p.id}">Place order</button>
+          </div>
+        `;
+        grid.appendChild(c);
+      })
+
+      // attach place order listeners
+      document.querySelectorAll('.place-btn[data-id]').forEach(b=>b.addEventListener('click',(e)=>{
+        const id = e.currentTarget.dataset.id;
+        openModal(PRODUCTS.find(x=>x.id===id));
+      }))
+    }
+
+    // modal logic
+    let activeProduct = null;
+    function openModal(p){
+      activeProduct = p;
+      modal.classList.add('open');
+      modalImg.src = p.img;
+      modalTitle.textContent = p.title;
+      modalSpecs.innerHTML = p.specs.map(s=>`<div>${s}</div>`).join('');
+      modalPrice.textContent = money(p.price);
+      // prefill phone if logged in
+      const me = getCurrentUser(); if(me) orderPhone.value = me.phone || '';
+    }
+    document.getElementById('closeModal').addEventListener('click',()=>{modal.classList.remove('open')});
+
+    // Place order -> both save to local orders and open WhatsApp
+    placeOrderBtn.addEventListener('click',()=>{
+      const phone = orderPhone.value.trim();
+      const loc = orderLocation.value;
+      if(!phone || phone.length<7){alert('Please give a valid phone number');return}
+      const fee = (loc==='offcampus')?CONFIG.offCampusFee:0;
+      const order = {
+        id: 'ord_'+Date.now(),
+        productId: activeProduct.id,
+        title: activeProduct.title,
+        price: activeProduct.price,
+        extraFee: fee,
+        total: activeProduct.price + fee,
+        phone, loc, created: new Date().toISOString(), seen:false
+      };
+      saveOrder(order);
+      // send WhatsApp prefilled
+      const msg = encodeURIComponent(`Order from CampusCart%0AProduct: ${order.title}%0APrice: ${CONFIG.currency} ${order.total}%0APhone: ${order.phone}%0ALocation: ${order.loc}%0AOrder ID: ${order.id}`);
+      const wa = `https://api.whatsapp.com/send?phone=${CONFIG.whatsAppNumber.replace(/\+/g,'')}&text=${msg}`;
+      window.open(wa,'_blank');
+      modal.classList.remove('open');
+      toast('Order placed — check admin or WhatsApp');
+    });
+
+    // save orders in localStorage
+    function saveOrder(order){
+      const list = JSON.parse(localStorage.getItem('cc_orders')||'[]');
+      list.unshift(order);
+      localStorage.setItem('cc_orders',JSON.stringify(list));
+      // emit event so admin (if open) updates
+      window.dispatchEvent(new CustomEvent('ordersUpdated'));
+    }
+
+    // small toast
+    function toast(t){
+      const el = document.createElement('div'); el.textContent=t; el.style.position='fixed'; el.style.right='18px'; el.style.bottom='18px'; el.style.padding='12px 18px'; el.style.borderRadius='10px'; el.style.background='rgba(0,0,0,0.8)'; el.style.color='white'; el.style.zIndex=9999; document.body.appendChild(el);
+      setTimeout(()=>el.style.opacity=0,1800); setTimeout(()=>el.remove(),2400);
+    }
+
+    // search
+    searchInput.addEventListener('input',()=>{
+      const q = searchInput.value.trim().toLowerCase();
+      filtered = PRODUCTS.filter(p=>p.title.toLowerCase().includes(q) || p.specs.join(' ').toLowerCase().includes(q));
+      renderGrid();
+    });
+
+    // theme toggle
+    function setTheme(isDark){
+      if(isDark) document.documentElement.classList.add('dark'), themeIcon.textContent='🌙'; else document.documentElement.classList.remove('dark'), themeIcon.textContent='🌞';
+      localStorage.setItem('cc_theme', isDark? 'dark':'light');
+    }
+    themeToggle.addEventListener('click',()=>{ setTheme(!document.documentElement.classList.contains('dark')) });
+    // restore theme
+    if(localStorage.getItem('cc_theme')==='dark') setTheme(true);
+
+    // login flow (simple phone + password stored in localStorage for users). Prototype behaviour.
+    function getCurrentUser(){return JSON.parse(localStorage.getItem('cc_user')||'null')}
+    function setCurrentUser(u){localStorage.setItem('cc_user',JSON.stringify(u))}
+
+    loginBtn.addEventListener('click',()=>{
+      showLoginModal();
+    });
+
+    function showLoginModal(){
+      const html = `
+        <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);z-index:9999">
+          <div style="background:var(--cream);padding:18px;border-radius:12px;min-width:300px">
+            <h3>Log in</h3>
+            <div style="margin-top:8px"><input id='liPhone' placeholder='07XXXXXXXX' class='input' /></div>
+            <div style="margin-top:8px"><input id='liPass' placeholder='Password' type='password' class='input' /></div>
+            <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+              <button id='liClose' class='btn'>Close</button>
+              <button id='liGo' class='btn btn-primary'>Log in</button>
+            </div>
+            <div style="margin-top:8px;color:var(--muted);font-size:12px">If you don't have an account, this will store your phone & password locally for future logins.</div>
+          </div>
+        </div>`;
+      const wrapper = document.createElement('div'); wrapper.innerHTML = html; document.body.appendChild(wrapper);
+      document.getElementById('liClose').addEventListener('click',()=>wrapper.remove());
+      document.getElementById('liGo').addEventListener('click',()=>{
+        const phone = document.getElementById('liPhone').value.trim();
+        const pass = document.getElementById('liPass').value.trim();
+        if(!phone||!pass){alert('phone & password required');return}
+        setCurrentUser({phone,pass});
+        wrapper.remove();
+        toast('Logged in — phone saved locally');
+      });
+    }
+
+    // admin area (visible if url hash is #admin)
+    function buildAdmin(){
+      const adminArea = document.getElementById('adminArea');
+      adminArea.innerHTML = '';
+      if(location.hash!='#admin') return;
+
+      // simple pass prompt
+      const logged = sessionStorage.getItem('cc_admin_logged');
+      if(!logged){
+        adminArea.innerHTML = `<div style="padding:18px;background:var(--glass);border-radius:12px;max-width:720px;margin-top:14px"><h3>Admin login</h3>
+          <div style="margin-top:6px"><input id='adminUser' placeholder='Username' class='input' /></div>
+          <div style="margin-top:6px"><input id='adminPass' placeholder='Password' type='password' class='input' /></div>
+          <div style='margin-top:8px;display:flex;gap:8px;justify-content:flex-end'><button id='adminCancel' class='btn'>Cancel</button><button id='adminDo' class='btn btn-primary'>Enter</button></div>
+          <div style='margin-top:8px;color:var(--muted);font-size:13px'>Only people with the admin link should use this. Keep it secret.</div>
+        </div>`;
+        document.getElementById('adminCancel').addEventListener('click',()=>{location.hash='';buildAdmin()});
+        document.getElementById('adminDo').addEventListener('click',()=>{
+          const u = document.getElementById('adminUser').value.trim(); const p = document.getElementById('adminPass').value.trim();
+          if(u===CONFIG.adminUser && p===CONFIG.adminPass){ sessionStorage.setItem('cc_admin_logged','1'); buildAdmin(); } else { alert('Wrong credentials') }
+        });
+        return;
+      }
+
+      // admin logged in
+      adminArea.innerHTML = `<div class='admin-panel open'><div style='display:flex;justify-content:space-between;align-items:center'><h3>Admin dashboard</h3><div><button id='adminLogout' class='btn'>Logout</button></div></div>
+        <div style='margin-top:8px;display:flex;gap:10px;align-items:center'><div style='font-size:14px;color:var(--muted)'>Orders</div><button id='refreshOrders' class='btn'>Refresh</button></div>
+        <div id='ordersWrap' style='margin-top:12px' class='orders'></div>
+      </div>`;
+
+      document.getElementById('adminLogout').addEventListener('click',()=>{sessionStorage.removeItem('cc_admin_logged'); location.hash=''; buildAdmin() });
+      document.getElementById('refreshOrders').addEventListener('click',renderOrders);
+      renderOrders();
+    }
+
+    function renderOrders(){
+      const wrap = document.getElementById('ordersWrap');
+      const list = JSON.parse(localStorage.getItem('cc_orders')||'[]');
+      if(!wrap) return;
+      if(list.length===0){wrap.innerHTML='<div style="color:var(--muted)">No orders yet</div>';return}
+      wrap.innerHTML='';
+      list.forEach(o=>{
+        const el = document.createElement('div'); el.className='order';
+        el.innerHTML = `<div style='display:flex;justify-content:space-between;align-items:center'><div><strong>${o.title}</strong><div style='color:var(--muted);font-size:13px'>${o.created}</div></div><div style='text-align:right'>${money(o.total)}<div style='font-size:13px;color:var(--muted)'>${o.loc}</div></div></div>
+          <div style='margin-top:8px;color:var(--muted)'>Phone: ${o.phone} · ID:${o.id}</div>
+          <div style='display:flex;gap:8px;margin-top:8px;justify-content:flex-end'><button class='btn markSeen' data-id='${o.id}'>Mark seen</button><button class='btn remove' data-id='${o.id}'>Delete</button></div>`;
+        wrap.appendChild(el);
+      });
+      // attach actions
+      wrap.querySelectorAll('.markSeen').forEach(b=>b.addEventListener('click',e=>{
+        const id = e.currentTarget.dataset.id; const list = JSON.parse(localStorage.getItem('cc_orders')||'[]');
+        const idx = list.findIndex(x=>x.id===id); if(idx>-1){ list[idx].seen=true; localStorage.setItem('cc_orders',JSON.stringify(list)); renderOrders(); }
+      }));
+      wrap.querySelectorAll('.remove').forEach(b=>b.addEventListener('click',e=>{
+        const id = e.currentTarget.dataset.id; let list = JSON.parse(localStorage.getItem('cc_orders')||'[]'); list = list.filter(x=>x.id!==id); localStorage.setItem('cc_orders',JSON.stringify(list)); renderOrders();
+      }));
+    }
+
+    // when hash changes
+    window.addEventListener('hashchange',buildAdmin);
+    window.addEventListener('load',()=>{ renderCategories(); renderGrid(); buildAdmin(); });
+    window.addEventListener('ordersUpdated',()=>{ if(location.hash==='#admin'){ renderOrders(); } });
+
+    // helper: contact button -> open WhatsApp to admin number
+    document.getElementById('contactBtn').addEventListener('click',()=>{
+      const msg = encodeURIComponent('Hello EMBREX / CampusCart — I have a question about CampusCart');
+      window.open(`https://api.whatsapp.com/send?phone=${CONFIG.whatsAppNumber.replace(/\+/g,'')}&text=${msg}`,'_blank');
+    });
+
+    // browse button scroll
+    document.getElementById('browseBtn').addEventListener('click',()=>{document.querySelector('#productGrid').scrollIntoView({behavior:'smooth'})});
+
+    // how it works
+    document.getElementById('howItWorks').addEventListener('click',()=>{alert('Log in with a phone + password (saved locally). Pick a product, choose location (on campus free / off campus BWP10). Place order — you will get a WhatsApp message to +267 753 96601 and the order is saved to the admin dashboard. Orders are cash-on-delivery (COD).')});
+
+    // small: replace email placeholder in footer if present in config
+    document.getElementById('emailLink').href = 'mailto:'+CONFIG.emailPlaceholder;
+    document.getElementById('emailLink').textContent = CONFIG.emailPlaceholder;
+
+  </script>
+</body>
+</html>
